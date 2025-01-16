@@ -3,6 +3,7 @@
 #include <vector>
 #include <ctime>
 #include <cstdlib>
+#include <algorithm> // För std::count_if
 
 using namespace std;
 
@@ -19,10 +20,9 @@ class SensorData
     SensorType sensorType;
     time_t time;
 public:
-    SensorType GetSensorType() { return sensorType; }
-    float GetValue() { return value; }
-    void SetValue(float v) { value = v; }
-    time_t GetTime() { return time; }
+    SensorType GetSensorType() const { return sensorType; }
+    float GetValue() const { return value; }
+    time_t GetTime() const { return time; }
     SensorData(SensorType sensorType, float value, time_t time)
     {
         this->value = value;
@@ -43,18 +43,12 @@ int main()
     time_t startTime = CreateTime(2012, 1, 2, 0, 0, 0);
     time_t endTime = CreateTime(2012, 1, 3, 0, 0, 0);
 
-    // Räknare för antalet registreringar
-    int count = 0;
-
-    // Iterera genom sensordata och räkna höjdregistreringar för 2 januari 2012
-    for (SensorData data : sensorData)
-{
-    if (data.GetSensorType() == SensorType::Altitude &&
-        data.GetTime() >= startTime && data.GetTime() < endTime)
-    {
-        count++;
-    }
-}
+    // Använd std::count_if för att räkna antalet registreringar
+    int count = std::count_if(sensorData.begin(), sensorData.end(), [startTime, endTime](const SensorData& data) {
+        return data.GetSensorType() == SensorType::Altitude &&
+               data.GetTime() >= startTime &&
+               data.GetTime() < endTime;
+    });
 
     // Skriv ut resultatet
     cout << "Antal höjdregistreringar den 2 januari 2012: " << count << endl;

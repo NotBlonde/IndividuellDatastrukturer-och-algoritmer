@@ -3,6 +3,7 @@
 #include <vector>
 #include <ctime>
 #include <cstdlib>
+#include <algorithm> // För std::for_each
 
 using namespace std;
 
@@ -19,10 +20,15 @@ class SensorData
     SensorType sensorType;
     time_t time;
 public:
-    SensorType GetSensorType() { return sensorType; }
-    float GetValue() { return value; }
+    // Getter-metoder markerade som const
+    SensorType GetSensorType() const { return sensorType; }
+    float GetValue() const { return value; }
+    time_t GetTime() const { return time; }
+
+    // Setter-metod
     void SetValue(float v) { value = v; }
-    time_t GetTime() { return time; }
+
+    // Konstruktor
     SensorData(SensorType sensorType, float value, time_t time)
     {
         this->value = value;
@@ -39,16 +45,13 @@ int main()
     vector<SensorData> sensorData;
     FillData(sensorData);
 
-    // Uppdatera alla FuelConsumption-poster
-    for (size_t i = 0; i < sensorData.size(); ++i)
-    {
-        SensorData& data = sensorData[i]; // Referens till objektet
+    // Uppdatera alla FuelConsumption-poster med 75%
+    std::for_each(sensorData.begin(), sensorData.end(), [](SensorData& data) {
         if (data.GetSensorType() == SensorType::FuelConsumption)
         {
-            float updatedValue = data.GetValue() * 1.75f; // Öka med 75%
-            data.SetValue(updatedValue); // Uppdatera värdet
+            data.SetValue(data.GetValue() * 1.75f); // Öka med 75%
         }
-    }
+    });
 
     // Bekräfta uppdateringarna (valfritt)
     cout << "Alla FuelConsumption-poster har uppdaterats med 75%." << endl;
@@ -79,8 +82,8 @@ void FillData(vector<SensorData>& v)
 time_t CreateTime(int year, int month, int day, int hour, int minute, int second)
 {
     struct tm timeInfo = { 0 };
-    timeInfo.tm_year = year - 1900;
-    timeInfo.tm_mon = month - 1;
+    timeInfo.tm_year = year - 1900; // år från 1900
+    timeInfo.tm_mon = month - 1;   // månader från 0
     timeInfo.tm_mday = day;
     timeInfo.tm_hour = hour;
     timeInfo.tm_min = minute;
